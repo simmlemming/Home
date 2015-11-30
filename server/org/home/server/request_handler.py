@@ -3,9 +3,9 @@ from cgi import parse_header
 from http.server import BaseHTTPRequestHandler
 from sqlite3 import OperationalError
 
-import org.home.notifier as notifier
-import org.home.updates_processor as processor
-from org.home.utils import *
+import org.home.server.notifier as notifier
+import org.home.server.updates_processor as processor
+from org.home.server.utils import *
 
 import org.home.server.storage as storage
 

@@ -1,7 +1,7 @@
 from sqlite3 import OperationalError
 
-import org.home.notifier as notifier
-from org.home.updates_comparator import Comparator
+import org.home.server.notifier as notifier
+from org.home.server.updates_comparator import Comparator
 
 import org.home.server.storage as storage
 
