@@ -5,3 +5,8 @@
 .DS_Store
 /build
 /captures
+
+/server/db.sqlite3
+/server/last_update.json
+__pycache__
+/server/.idea
