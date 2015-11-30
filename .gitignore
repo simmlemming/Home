@@ -6,7 +6,7 @@
 /build
 /captures
 
-/server/db.sqlite3
+/server/db.sqlite
 /server/last_update.json
 __pycache__
 /server/.idea
