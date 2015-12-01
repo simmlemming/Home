@@ -2,7 +2,7 @@ from http.server import HTTPServer
 import org.home.common.log as log
 from org.home.server.request_handler import HomeRequestHandler
 
-IP_ADDRESS = '127.0.0.1'
+IP_ADDRESS = '0.0.0.0'
 PORT_NUMBER = 8080
 
 log.init()

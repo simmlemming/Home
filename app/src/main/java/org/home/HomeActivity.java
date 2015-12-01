@@ -6,8 +6,10 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 
+import org.home.network.SendGcmTokenRequest;
 import org.home.service.PubnubService;
 
 
@@ -58,7 +60,9 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
     };
 
     private PubnubService service;
-    private View startView, stopView;
+    private View sendTokenView;
+    private EditText deviceNameView, deviceTokenView;
+
     private ImageView iconView;
 
     @Override
@@ -67,11 +71,11 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_home);
 
         iconView = (ImageView) findViewById(R.id.icon);
-        startView = findViewById(R.id.start);
-        stopView = findViewById(R.id.stop);
+        sendTokenView = findViewById(R.id.send_token);
+        deviceNameView = (EditText) findViewById(R.id.device_name);
+        deviceTokenView = (EditText) findViewById(R.id.device_token);
 
-        startView.setOnClickListener(this);
-        stopView.setOnClickListener(this);
+        sendTokenView.setOnClickListener(this);
 
         bindService(PubnubService.intent(this), serviceConnection, BIND_AUTO_CREATE);
 
@@ -79,25 +83,29 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void updateUi() {
-        startView.setEnabled(service != null && !service.isHartbeating());
-        stopView.setEnabled(service != null && service.isHartbeating());
-
-        if (service == null || !service.isHartbeating()) {
-            iconView.setImageResource(R.drawable.ic_notification_fail);
-        }
+//        startView.setEnabled(service != null && !service.isHartbeating());
+//        stopView.setEnabled(service != null && service.isHartbeating());
+//
+//        if (service == null || !service.isHartbeating()) {
+//            iconView.setImageResource(R.drawable.ic_notification_fail);
+//        }
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.start:
-                service.startHartbeat();
-                break;
-
-            case R.id.stop:
-                service.stopHartbeat();
+            case R.id.send_token:
+                sendToken();
                 break;
         }
+    }
+
+    private void sendToken() {
+        String deviceName = deviceNameView.getText().toString();
+        String deviceToken = deviceTokenView.getText().toString();
+
+        SendGcmTokenRequest request = new SendGcmTokenRequest(deviceName, deviceToken);
+        ((HomeApplication)getApplication()).getRequestQueue().add(request);
     }
 
     @Override

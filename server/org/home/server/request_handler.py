@@ -2,6 +2,7 @@ import json
 import org.home.server.storage as storage
 import org.home.server.notifier as notifier
 import org.home.server.updates_processor as processor
+import org.home.common.log as log
 from cgi import parse_header
 from http.server import BaseHTTPRequestHandler
 from sqlite3 import OperationalError
@@ -36,7 +37,7 @@ class HomeRequestHandler(BaseHTTPRequestHandler):
 
         else:
             self.__error_response(404, "")
-            print('Unknown path: ' + self.path)
+            log.e('Unknown path: ' + self.path)
             return
 
         self.send_response(code)
@@ -77,15 +78,12 @@ class HomeRequestHandler(BaseHTTPRequestHandler):
     def parse_POST(self):
         content_type, pdict = parse_header(self.headers['content-type'])
 
-        if content_type == 'multipart/form-data':
-            post_vars = "{}"
-
-        elif content_type == 'application/x-www-form-urlencoded':
+        if content_type == 'application/json':
             length = int(self.headers['content-length'])
             post_vars = self.rfile.read(length).decode('ascii')
             post_vars = json.loads(post_vars)
 
         else:
-            post_vars = "{}"
+            post_vars = dict()
 
         return post_vars

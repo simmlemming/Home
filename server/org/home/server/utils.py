@@ -1,5 +1,5 @@
 def validate_device(token):
-    return token['token']
+    return ('device_token' in token) & ('device_name' in token)
 
 
 def validate_update(update):

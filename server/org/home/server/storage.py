@@ -15,11 +15,10 @@ def add_device(token):
     db = sqlite3.connect(DATABASE_FILE_NAME)
 
     db.execute('create table if not exists devices (time real, token text)')
-    db.execute('insert into devices values (?,?)', (time.time(), token['token']))
+    db.execute('insert into devices values (?,?)', (time.time(), token['device_token']))
 
     db.commit()
     db.close()
-    pass
 
 
 def save_last_update(update):

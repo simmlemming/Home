@@ -70,13 +70,6 @@ public class PubnubService extends Service {
                 public void connectCallback(String channel, Object message) {
                     Log.i(HomeApplication.TAG, "connected, " + String.valueOf(message));
                     notifyConnected("Connected", "connected to main channel", R.drawable.ic_notification_ok);
-
-                    ((HomeApplication)getApplication()).runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            startHartbeat();
-                        }
-                    });
                 }
 
                 @Override
