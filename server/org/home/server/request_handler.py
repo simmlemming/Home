@@ -1,13 +1,11 @@
 import json
+import org.home.server.storage as storage
+import org.home.server.notifier as notifier
+import org.home.server.updates_processor as processor
 from cgi import parse_header
 from http.server import BaseHTTPRequestHandler
 from sqlite3 import OperationalError
-
-import org.home.server.notifier as notifier
-import org.home.server.updates_processor as processor
 from org.home.server.utils import *
-
-import org.home.server.storage as storage
 
 
 class HomeRequestHandler(BaseHTTPRequestHandler):
@@ -54,6 +52,7 @@ class HomeRequestHandler(BaseHTTPRequestHandler):
             storage.add_device(token)
             notifier.notify_device_added(token)
             return 200, "Device added"
+
         except OperationalError as e:
             return 500, "Cannot process device: " + str(e)
 
@@ -64,6 +63,7 @@ class HomeRequestHandler(BaseHTTPRequestHandler):
         try:
             processor.on_new_update(update)
             return 200, "Update precessed"
+
         except OperationalError as e:
             return 500, "Cannot process update: " + str(e)
 

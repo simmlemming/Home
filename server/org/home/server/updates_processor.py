@@ -1,9 +1,8 @@
-from sqlite3 import OperationalError
-
 import org.home.server.notifier as notifier
-from org.home.server.updates_comparator import Comparator
-
 import org.home.server.storage as storage
+import org.home.common.log as log
+from sqlite3 import OperationalError
+from org.home.server.updates_comparator import Comparator
 
 
 def on_new_update(new_update):
@@ -23,6 +22,6 @@ def on_new_update(new_update):
             raise OperationalError
 
     else:
-        print('No changes since last update')
+        log.d('No changes since last update')
 
     storage.save_last_update(new_update)

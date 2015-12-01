@@ -10,3 +10,4 @@
 /server/last_update.json
 __pycache__
 /server/.idea
+home.log*
