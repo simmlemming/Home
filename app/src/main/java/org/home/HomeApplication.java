@@ -8,6 +8,10 @@ import android.os.Handler;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 
+import org.home.network.SendGcmTokenRequest;
+
+import de.greenrobot.event.EventBus;
+
 
 /**
  * Created by mtkachenko on 24/11/15.
@@ -17,6 +21,7 @@ public class HomeApplication extends Application {
 
     private Handler handler;
     private RequestQueue requestQueue;
+    private EventBus eventBus;
 
     @Override
     public void onCreate() {
@@ -26,10 +31,22 @@ public class HomeApplication extends Application {
 
         requestQueue = Volley.newRequestQueue(this);
         requestQueue.start();
+
+        eventBus = HomeEventBus.getDefault();
+        eventBus.register(this);
+    }
+
+    @SuppressWarnings("unused")
+    public void onEvent(SendGcmTokenRequest.RequestFailedEvent event) {
+        getNotificationManager().notifyError(getString(R.string.error_cannot_send_gcm_token), event.userFriendlyErrorMessage);
     }
 
     public RequestQueue getRequestQueue() {
         return requestQueue;
+    }
+
+    public EventBus getEventBus() {
+        return eventBus;
     }
 
     public void runOnUiThread(Runnable r) {
@@ -38,6 +55,10 @@ public class HomeApplication extends Application {
 
     public Settings getSettings() {
         return new Settings();
+    }
+
+    public HomeNotificationManager getNotificationManager() {
+        return new HomeNotificationManager(this);
     }
 
     public class Settings {

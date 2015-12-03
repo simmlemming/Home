@@ -1,7 +1,10 @@
 package org.home;
 
 import android.app.Dialog;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -16,6 +19,7 @@ import org.home.network.SendGcmTokenRequest;
 
 
 public class HomeActivity extends AppCompatActivity implements View.OnClickListener {
+    private final static String EXTRA_STARTED_FROM_NOTIFICATION = "started_from_notification";
 
     private View sendTokenView;
     private EditText deviceNameView, deviceTokenView;
@@ -34,6 +38,13 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
 
         sendTokenView.setOnClickListener(this);
 
+        boolean startedFromNotification = getIntent().getBooleanExtra(EXTRA_STARTED_FROM_NOTIFICATION, false);
+        if (!startedFromNotification) {
+            refreshGcmToken();
+        }
+    }
+
+    private void refreshGcmToken() {
         int playServicesAvailable = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
         if (playServicesAvailable == ConnectionResult.SUCCESS) {
             GcmRegistrationService.start(this);
@@ -63,5 +74,14 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
 
         SendGcmTokenRequest request = new SendGcmTokenRequest(deviceName, deviceToken);
         ((HomeApplication)getApplication()).getRequestQueue().add(request);
+    }
+
+
+    public static PendingIntent intentForNotification(Context context) {
+        Intent homeActivity = new Intent(context, HomeActivity.class);
+        homeActivity.putExtra(EXTRA_STARTED_FROM_NOTIFICATION, true);
+        homeActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); // Clear everything on top
+        homeActivity.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP); // Also re-create Home activity
+        return PendingIntent.getActivity(context, 0, homeActivity, PendingIntent.FLAG_CANCEL_CURRENT); // Also re-create pending intent
     }
 }

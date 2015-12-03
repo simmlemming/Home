@@ -8,6 +8,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonRequest;
 
 import org.home.HomeApplication;
+import org.home.HomeEventBus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -47,6 +48,7 @@ public class SendGcmTokenRequest extends JsonRequest<SendGcmTokenRequest.SendGcm
         @Override
         public void onErrorResponse(VolleyError volleyError) {
             Log.i(HomeApplication.TAG, "Cannot send device token: " + volleyError.getLocalizedMessage());
+            HomeEventBus.getDefault().post(new RequestFailedEvent(volleyError.getMessage()));
         }
     }
 
@@ -60,5 +62,13 @@ public class SendGcmTokenRequest extends JsonRequest<SendGcmTokenRequest.SendGcm
 
     public static class SendGcmTokenResponse {
 
+    }
+
+    public static class RequestFailedEvent {
+        public final String userFriendlyErrorMessage;
+
+        public RequestFailedEvent(String userFriendlyErrorMessage) {
+            this.userFriendlyErrorMessage = userFriendlyErrorMessage;
+        }
     }
 }

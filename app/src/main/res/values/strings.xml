@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Home</string>
+    <string name="error_cannot_send_gcm_token">Cannot send GCM token</string>
 </resources>
