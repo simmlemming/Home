@@ -11,3 +11,4 @@
 __pycache__
 /server/.idea
 home.log*
+app/google-services.json
