@@ -44,6 +44,7 @@ class HomeRequestHandler(BaseHTTPRequestHandler):
         self.send_header('Content-type', 'text/plain')
         self.end_headers()
         self.wfile.write(bytes(message, encoding='utf8'))
+        log.d(message)
 
     def __on_new_device(self, token):
         if not validate_device(token):
@@ -80,7 +81,7 @@ class HomeRequestHandler(BaseHTTPRequestHandler):
 
         if content_type == 'application/json':
             length = int(self.headers['content-length'])
-            post_vars = self.rfile.read(length).decode('ascii')
+            post_vars = self.rfile.read(length).decode('utf-8')
             post_vars = json.loads(post_vars)
 
         else:
