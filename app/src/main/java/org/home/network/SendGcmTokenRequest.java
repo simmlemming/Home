@@ -35,7 +35,7 @@ public class SendGcmTokenRequest extends JsonRequest<SendGcmTokenRequest.SendGcm
     }
 
     private static String url() {
-        return "http://192.168.0.102:8080/device";
+        return "http://80.240.140.181:8080/device";
     }
 
     @Override
