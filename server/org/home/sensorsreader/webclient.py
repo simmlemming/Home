@@ -3,7 +3,7 @@ import urllib.error as error
 import json
 import time
 
-SERVER_URL = 'http://127.0.0.1:8080/update'
+SERVER_URL = 'http://80.240.140.181:8080/update'
 
 
 def sensor_info(name, state):
