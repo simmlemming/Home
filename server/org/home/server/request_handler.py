@@ -6,7 +6,20 @@ import org.home.common.log as log
 from cgi import parse_header
 from http.server import BaseHTTPRequestHandler
 from sqlite3 import OperationalError
-from org.home.server.utils import *
+import org.home.server.utils as utils
+
+
+def on_new_device(token):
+    if not utils.validate_device(token):
+        return 422, "Invalid device"
+
+    try:
+        storage.add_device(token)
+        notifier.notify_device_added(token)
+        return 200, "Device added"
+
+    except Exception as e:
+        return 500, "Cannot process device: " + str(e)
 
 
 class HomeRequestHandler(BaseHTTPRequestHandler):
@@ -30,7 +43,7 @@ class HomeRequestHandler(BaseHTTPRequestHandler):
         data = self.parse_POST()
 
         if self.path == '/device':
-            code, message = self.__on_new_device(data)
+            code, message = on_new_device(data)
 
         elif self.path == '/update':
             code, message = self.__on_new_update(data)
@@ -46,20 +59,8 @@ class HomeRequestHandler(BaseHTTPRequestHandler):
         self.wfile.write(bytes(message, encoding='utf8'))
         log.d(message)
 
-    def __on_new_device(self, token):
-        if not validate_device(token):
-            return 422, "Invalid device token"
-
-        try:
-            storage.add_device(token)
-            notifier.notify_device_added(token)
-            return 200, "Device added"
-
-        except OperationalError as e:
-            return 500, "Cannot process device: " + str(e)
-
     def __on_new_update(self, update):
-        if not validate_update(update):
+        if not utils.validate_update(update):
             return 422, "Invalid update"
 
         try:
