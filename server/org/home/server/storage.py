@@ -11,6 +11,18 @@ class InvalidUpdate:
     pass
 
 
+def get_all_devices():
+    db = sqlite3.connect(DATABASE_FILE_NAME)
+
+    db.execute('create table if not exists devices (name text primary key, token text)')
+    cursor = db.execute('select name, token from devices')
+
+    devices = cursor.fetchall()
+    db.close()
+
+    return devices
+
+
 def add_device(token):
     db = sqlite3.connect(DATABASE_FILE_NAME)
 
