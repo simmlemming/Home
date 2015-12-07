@@ -18,8 +18,11 @@ package org.home.gcm;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.gcm.GcmListenerService;
+
+import org.home.HomeApplication;
 
 public class HomeGcmListenerService extends GcmListenerService {
 
@@ -39,7 +42,14 @@ public class HomeGcmListenerService extends GcmListenerService {
         sendNotification(message);
     }
 
-    private void sendNotification(String message) {
+    private void sendNotification(final String message) {
+        final HomeApplication application = (HomeApplication) getApplication();
+        application.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(application, message, Toast.LENGTH_SHORT).show();
+            }
+        });
 //        Intent intent = new Intent(this, MainActivity.class);
 //        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 //        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
