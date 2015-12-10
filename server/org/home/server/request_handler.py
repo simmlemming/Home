@@ -22,6 +22,18 @@ def on_new_device(token):
         return 500, "Cannot process device: " + str(e)
 
 
+def on_new_update(update):
+    if not utils.validate_update(update):
+        return 422, "Invalid update"
+
+    try:
+        processor.on_new_update(update)
+        return 200, "Update processed"
+
+    except OperationalError as e:
+        return 500, "Cannot process update: " + str(e)
+
+
 class HomeRequestHandler(BaseHTTPRequestHandler):
 
     # noinspection PyPep8Naming
@@ -40,44 +52,27 @@ class HomeRequestHandler(BaseHTTPRequestHandler):
 
     # noinspection PyPep8Naming
     def do_POST(self):
-        data = self.parse_POST()
+        data = self.parse_post()
 
         if self.path == '/device':
             code, message = on_new_device(data)
 
         elif self.path == '/update':
-            code, message = self.__on_new_update(data)
+            code, message = on_new_update(data)
 
         else:
-            self.__error_response(404, "")
-            log.e('Unknown path: ' + self.path)
-            return
+            code, message = 404, 'Unknown path: ' + self.path
 
         self.send_response(code)
         self.send_header('Content-type', 'text/plain')
         self.end_headers()
         self.wfile.write(bytes(message, encoding='utf8'))
+
         log.d(message)
+        if code != 200:
+            log.e('%s: %s' % (code, message))
 
-    def __on_new_update(self, update):
-        if not utils.validate_update(update):
-            return 422, "Invalid update"
-
-        try:
-            processor.on_new_update(update)
-            return 200, "Update precessed"
-
-        except OperationalError as e:
-            return 500, "Cannot process update: " + str(e)
-
-    def __error_response(self, error_code, message):
-        self.send_response(error_code)
-        self.send_header('Content-type', 'text/plain')
-        self.end_headers()
-        self.wfile.write(bytes(message, encoding='utf8'))
-
-    # noinspection PyPep8Naming
-    def parse_POST(self):
+    def parse_post(self):
         content_type, pdict = parse_header(self.headers['content-type'])
 
         if content_type == 'application/json':
@@ -89,3 +84,9 @@ class HomeRequestHandler(BaseHTTPRequestHandler):
             post_vars = dict()
 
         return post_vars
+
+    def __error_response(self, error_code, message):
+        self.send_response(error_code)
+        self.send_header('Content-type', 'text/plain')
+        self.end_headers()
+        self.wfile.write(bytes(message, encoding='utf8'))

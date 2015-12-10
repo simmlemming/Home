@@ -2,8 +2,9 @@ import urllib.request as request
 import urllib.error as error
 import json
 import time
+from org.home.server.home import get_ip_from_args
 
-SERVER_URL = 'http://80.240.140.181:8080/update'
+SERVER_URL = 'http://{0}:8080/update'.format(get_ip_from_args())
 
 
 def sensor_info(name, state):
@@ -22,14 +23,16 @@ def update(sensor_state):
             }
 
 while True:
-    status = input("\nEnter status (0|1 or Empty line to read log): ")
+    print("\nServer: {0}".format(SERVER_URL))
+    status = input("Enter status (0|1 or Empty line to read log): ")
     req = None
 
     if status == "":
         req = request.Request(SERVER_URL)
     else:
         dumped = json.dumps(update(status))  # String
-        req = request.Request(SERVER_URL, dumped.encode('ascii'))
+        req = request.Request(SERVER_URL, dumped.encode('utf-8'))
+        req.add_header('content-type', 'application/json')
 
     try:
         response = request.urlopen(req)

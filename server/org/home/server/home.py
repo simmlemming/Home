@@ -7,9 +7,13 @@ import getopt
 import sys
 
 
+server = None
+
+
 def shutdown_server(signal, frame):
-    log.i('Shutting down (killed)')
-    threading.Thread(daemon=True, target=server.shutdown).start()
+    log.i('*** Shutting down (killed) ***')
+    if server:
+        threading.Thread(daemon=True, target=server.shutdown).start()
 
 
 def get_ip_from_args():
@@ -19,24 +23,29 @@ def get_ip_from_args():
         if opt == "-a":
             return arg
 
+    print('You can set an ip address by passing -a parameter: ... -a 127.0.0.1')
     return '0.0.0.0'
 
-IP_ADDRESS = get_ip_from_args()
-IP_PORT = 8080
 
-log.init()
-signal.signal(signal.SIGTERM, shutdown_server)
+def main():
+    global server
 
-server = HTTPServer((IP_ADDRESS, IP_PORT), HomeRequestHandler)
-log.i('Started on {0}:{1}'.format(IP_ADDRESS, IP_PORT))
+    ip_address = get_ip_from_args()
+    ip_port = 8080
 
-if IP_ADDRESS == '0.0.0.0':
-    print('You can set an ip address by passing -a parameter: ... -a 127.0.0.1')
+    log.init()
+    signal.signal(signal.SIGTERM, shutdown_server)
 
-try:
-    # Wait forever for incoming http requests
-    server.serve_forever()
+    server = HTTPServer((ip_address, ip_port), HomeRequestHandler)
+    log.i('*** Started on {0}:{1} ***'.format(ip_address, ip_port))
 
-except KeyboardInterrupt:
-    log.i('Shutting down (^C received)')
-    server.socket.close()
+    try:
+        # Wait forever for incoming http requests
+        server.serve_forever()
+
+    except KeyboardInterrupt:
+        log.i('Shutting down (^C received)')
+        server.socket.close()
+
+if __name__ == '__main__':
+    main()

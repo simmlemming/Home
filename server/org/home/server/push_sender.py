@@ -10,14 +10,14 @@ def send_to_all(message):
     devices = storage.get_all_devices()
 
     if len(devices) == 0:
-        log.d('No devices registered for push notifications')
+        log.i('No devices registered for push notifications')
 
     for name, token in devices:
         __send_to_one(name, token, message)
 
 
 def __send_to_one(name, token, message):
-    log.d('Sending {0} to {1}'.format(message, name))
+    log.i('Sending {0} to {1}'.format(message, name))
 
     headers = {'Authorization': 'key=' + PUSH_API_KEY, 'Content-Type': 'application/json'}
     body = dict(to=token, data=dict(message=message))
@@ -30,7 +30,8 @@ def __send_to_one(name, token, message):
 
         content = json.loads(content)
         content = json.dumps(content, indent=4)
-        print(content + '\n')
+        log.i('Push notification sent to %s' % name)
+        log.i(content)
     except urllib.error.HTTPError as e:
         error_message = e.read().decode('utf-8')
 
