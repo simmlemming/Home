@@ -11,10 +11,14 @@ class InvalidUpdate:
     pass
 
 
-def get_all_devices():
-    db = sqlite3.connect(DATABASE_FILE_NAME)
+def get_db():
+    return sqlite3.connect(DATABASE_FILE_NAME)
 
-    db.execute('create table if not exists devices (name text primary key, token text)')
+
+def get_all_devices():
+    db = get_db()
+
+    __create_devices_table(db)
     cursor = db.execute('select name, token from devices')
 
     devices = cursor.fetchall()
@@ -24,9 +28,9 @@ def get_all_devices():
 
 
 def add_device(token):
-    db = sqlite3.connect(DATABASE_FILE_NAME)
+    db = get_db()
 
-    db.execute('create table if not exists devices (name text primary key, token text)')
+    __create_devices_table(db)
     db.execute('insert or replace into devices values (?,?)', (token['device_name'], token['device_token']))
 
     db.commit()
@@ -48,8 +52,8 @@ def get_last_update():
 
 
 def add_to_log(update):
-    db = sqlite3.connect(DATABASE_FILE_NAME)
-    __create_table(db)
+    db = get_db()
+    __create_log_table(db)
 
     db.execute('insert into log values(?,?)', (update['time'], json.dumps(update)))
 
@@ -60,15 +64,20 @@ def add_to_log(update):
 
 
 def get_log():
-    db = sqlite3.connect(DATABASE_FILE_NAME)
-    __create_table(db)
+    db = get_db()
 
+    __create_log_table(db)
     result = db.execute('select * from log')
+
     all_statuses = result.fetchall()
 
     db.close()
     return all_statuses
 
 
-def __create_table(db):
+def __create_log_table(db):
     db.execute('create table if not exists log (t real, u text)')
+
+
+def __create_devices_table(db):
+    db.execute('create table if not exists devices (name text primary key, token text)')
