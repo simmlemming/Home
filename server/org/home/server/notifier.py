@@ -1,5 +1,6 @@
 import json
 import org.home.server.push_sender as push_sender
+import org.home.server.storage as storage
 import org.home.common.log as log
 
 
@@ -8,6 +9,6 @@ def notify_device_added(token):
 
 
 def notify(cmp_result, update, sensors):
-    push_sender.send_to_all(update)
+    push_sender.send_to_all(storage.get_all_devices(), update)
     # message = "****** Notification ******\n\tCode: {0}\n\tSensors: {1}\n\tUpdate: {2}"
     # log.i(message.format(cmp_result, json.dumps(sensors), json.dumps(update)))

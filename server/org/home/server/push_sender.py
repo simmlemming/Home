@@ -6,19 +6,36 @@ import urllib.error
 import json
 
 
-def send_to_all(message):
-    devices = storage.get_all_devices()
-
+def send_to_all(devices, message):
     if len(devices) == 0:
         log.i('No devices registered for push notifications')
 
     for name, token in devices:
-        __send_to_one(name, token, message)
+        log.i('Sending to %s:' % name)
+        log.i(message)
+        status_code, error = __send_to_one(token, message)
+
+        if status_code == 200 and not error:
+            log.i('\tSent')
+        else:
+            log.e('\tNot sent:')
+            log.e('\t%s %s' % (status_code, error))
 
 
-def __send_to_one(name, token, message):
-    log.i('Sending {0} to {1}'.format(message, name))
+def process_response(status_code, response_body):
+    if status_code != 200:
+        return status_code, None
 
+    success = response_body['success']
+
+    if success == 1:
+        return 200, None
+
+    error = response_body['results'][0]['error']
+    return status_code, error
+
+
+def __send_to_one(token, message):
     headers = {'Authorization': 'key=' + PUSH_API_KEY, 'Content-Type': 'application/json'}
     body = dict(to=token, data=dict(message=message))
 
@@ -26,19 +43,19 @@ def __send_to_one(name, token, message):
                            json.dumps(body).encode('utf-8'), headers=headers)
     try:
         response = http.urlopen(request)
-        content = response.read().decode('utf-8')
 
-        content = json.loads(content)
-        content = json.dumps(content, indent=4)
-        log.i('Push notification sent to %s' % name)
-        log.i(content)
+        response_body = response.read().decode('utf-8')  # str
+        response_body = json.loads(response_body)  # dict
+
+        return process_response(response.getcode(), response_body)
     except urllib.error.HTTPError as e:
         error_message = e.read().decode('utf-8')
-
-        log.e('Cannot send push notification to %s:' % name)
-        log.e('\t%s %s' % (e.getcode(), e.reason))
-        log.e('\t%s' % error_message)
+        return e.getcode(), error_message
 
 if __name__ == "__main__":
-    t = "eQ20SxLuBfo:APA91bG248G176XbWGWiIUaqUQSZo3O5vWEH5zOLZU8i-CFz29SQDtzvJv8wwrvpFBytlOz2l1HNXha_57AisUVWpbRntVfNyxBlWhicLnt8_5t7h0nN6yr1MxqTCuqbkzUNLU_OpJNH"
-    __send_to_one("name", t, "abc sfjsifjwoifjwoiefj")
+    log.init()
+    t = "dN94xGA5m0Y:APA91bFvqn8y758yfyX8ugqQShee_RVHCb8cMFkvijeDZNXTyrBnzTdVpApNTu6uvp81gv039YUN4RB-He9Tsby2uZqFbK_WPk8IJChQgFYEk_S5BmiwB82izKE8K_tbM99sIAgMimbf"
+    m = dict(data=dict(message_id="qwe"))
+
+    send_to_all([('d1', t)], json.dumps(m))
+    # __send_to_one("name", t, json.dumps(m))
