@@ -13,7 +13,7 @@ def send_to_all(devices, message):
     for name, token in devices:
         log.i('Sending to %s:' % name)
         log.i(message)
-        status_code, error = __send_to_one(token, message)
+        status_code, error = send_to_one(token, message)
 
         if status_code == 200 and not error:
             log.i('\tSent')
@@ -35,7 +35,7 @@ def process_response(status_code, response_body):
     return status_code, error
 
 
-def __send_to_one(token, message):
+def send_to_one(token, message):
     headers = {'Authorization': 'key=' + PUSH_API_KEY, 'Content-Type': 'application/json'}
     body = dict(to=token, data=dict(message=message))
 
