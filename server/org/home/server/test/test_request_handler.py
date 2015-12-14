@@ -14,8 +14,8 @@ class HomeRequestHandlerTest(unittest.TestCase):
         code, text = org.home.server.request_handler.on_new_device("Qwdqwd")
 
         self.assertFalse(mock_storage.add_device.called)
-        self.assertEquals(422, code)
-        self.assertEquals("Invalid device", text)
+        self.assertEqual(422, code)
+        self.assertEqual("Invalid device", text)
 
     @patch('org.home.server.request_handler.utils')
     @patch('org.home.server.request_handler.storage')
@@ -25,7 +25,7 @@ class HomeRequestHandlerTest(unittest.TestCase):
 
         code, text = org.home.server.request_handler.on_new_device("Qwdqwd")
 
-        self.assertEquals(500, code)
+        self.assertEqual(500, code)
 
     @patch('org.home.server.request_handler.notifier')
     @patch('org.home.server.request_handler.utils')
@@ -37,5 +37,5 @@ class HomeRequestHandlerTest(unittest.TestCase):
 
         mock_storage.add_device.assert_called_with("Qwdqwd")
         mock_notifier.notify_device_added.assert_called_with("Qwdqwd")
-        self.assertEquals(200, code)
-        self.assertEquals("Device added", text)
+        self.assertEqual(200, code)
+        self.assertEqual("Device added", text)
