@@ -47,7 +47,13 @@ public class SendGcmTokenRequest extends JsonRequest<SendGcmTokenRequest.SendGcm
 
         @Override
         public void onErrorResponse(VolleyError volleyError) {
-            Log.i(HomeApplication.TAG, "Cannot send device token: " + new String(volleyError.networkResponse.data));
+            String errorMessage = volleyError.getMessage();
+
+            if (volleyError.networkResponse != null && volleyError.networkResponse.data != null) {
+                errorMessage = new String(volleyError.networkResponse.data);
+            }
+
+            Log.i(HomeApplication.TAG, "Cannot send device token: " + errorMessage);
             HomeEventBus.getDefault().post(new RequestFailedEvent(volleyError.getMessage()));
         }
     }
