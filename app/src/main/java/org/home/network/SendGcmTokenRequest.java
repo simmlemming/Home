@@ -2,26 +2,31 @@ package org.home.network;
 
 import android.util.Log;
 
-import com.android.volley.NetworkResponse;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonRequest;
 
 import org.home.HomeApplication;
 import org.home.HomeEventBus;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
  * Created by mtkachenko on 01/12/15.
  */
-public class SendGcmTokenRequest extends JsonRequest<SendGcmTokenRequest.SendGcmTokenResponse> {
+public class SendGcmTokenRequest extends BaseRequest<SendGcmTokenRequest.SendGcmTokenResponse> {
+    private final String deviceName;
+    private final String token;
 
     public SendGcmTokenRequest(String deviceName, String token) {
-        super(Method.POST, url(), requestBody(deviceName, token), new OkListener(), new ErrorListener());
+        super(Method.POST, url("/device"), new OkListener(), new ErrorListener());
+        this.deviceName = deviceName;
+        this.token = token;
     }
 
-    private static String requestBody(String deviceName, String token) {
+    @Nullable
+    @Override
+    protected String getBodyAsString() {
         JSONObject body = new JSONObject();
 
         try {
@@ -34,13 +39,9 @@ public class SendGcmTokenRequest extends JsonRequest<SendGcmTokenRequest.SendGcm
         return body.toString();
     }
 
-    private static String url() {
-        return "http://80.240.140.181:8080/device";
-    }
-
     @Override
-    protected Response<SendGcmTokenResponse> parseNetworkResponse(NetworkResponse networkResponse) {
-        return Response.success(new SendGcmTokenResponse(), null);
+    protected SendGcmTokenResponse parseNetworkResponse(@Nullable String data) {
+        return new SendGcmTokenResponse();
     }
 
     private static class ErrorListener implements Response.ErrorListener {
@@ -53,8 +54,8 @@ public class SendGcmTokenRequest extends JsonRequest<SendGcmTokenRequest.SendGcm
                 errorMessage = new String(volleyError.networkResponse.data);
             }
 
-            Log.i(HomeApplication.TAG, "Cannot send device token: " + errorMessage);
-            HomeEventBus.getDefault().post(new RequestFailedEvent(volleyError.getMessage()));
+            Log.e(HomeApplication.TAG, "Cannot send device token: " + errorMessage);
+            HomeEventBus.getDefault().post(new SendGcmTokenRequestFailedEvent(volleyError.getMessage()));
         }
     }
 
@@ -70,11 +71,10 @@ public class SendGcmTokenRequest extends JsonRequest<SendGcmTokenRequest.SendGcm
 
     }
 
-    public static class RequestFailedEvent {
-        public final String userFriendlyErrorMessage;
+    public static class SendGcmTokenRequestFailedEvent extends RequestFailedEvent {
 
-        public RequestFailedEvent(String userFriendlyErrorMessage) {
-            this.userFriendlyErrorMessage = userFriendlyErrorMessage;
+        public SendGcmTokenRequestFailedEvent(String userFriendlyErrorMessage) {
+            super(userFriendlyErrorMessage);
         }
     }
 }

@@ -27,6 +27,6 @@ dependencies {
     compile 'com.google.android.gms:play-services-gcm:8.3.0'
     compile 'org.jetbrains:annotations:13.0'
     compile 'de.greenrobot:eventbus:2.2.0'
-
+    compile 'com.google.code.gson:gson:2.5'
     testCompile 'junit:junit:4.12'
 }

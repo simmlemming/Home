@@ -37,7 +37,7 @@ public class HomeApplication extends Application {
     }
 
     @SuppressWarnings("unused")
-    public void onEvent(SendGcmTokenRequest.RequestFailedEvent event) {
+    public void onEvent(SendGcmTokenRequest.SendGcmTokenRequestFailedEvent event) {
         getNotificationManager().notifyError(getString(R.string.error_cannot_send_gcm_token), event.userFriendlyErrorMessage);
     }
 

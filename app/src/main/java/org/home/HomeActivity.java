@@ -10,11 +10,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 
 import org.home.gcm.GcmRegistrationService;
+import org.home.network.CurrentStatusRequest;
 import org.home.network.SendGcmTokenRequest;
 
 
@@ -42,6 +44,12 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         if (!startedFromNotification) {
             refreshGcmToken();
         }
+
+        ((HomeApplication)getApplication()).getEventBus().register(this);
+
+        CurrentStatusRequest request = new CurrentStatusRequest();
+        ((HomeApplication)getApplication()).getRequestQueue().cancelAll(CurrentStatusRequest.TAG);
+        ((HomeApplication)getApplication()).getRequestQueue().add(request);
     }
 
     private void refreshGcmToken() {
@@ -57,6 +65,16 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
             });
             dialog.show();
         }
+    }
+
+    @SuppressWarnings("unused")
+    public void onEvent(CurrentStatusRequest.StatusRequestFailedEvent event) {
+        Toast.makeText(this, event.userFriendlyErrorMessage, Toast.LENGTH_SHORT).show();
+    }
+
+    @SuppressWarnings("unused")
+    public void onEvent(CurrentStatusRequest.StatusReceivedEvent event) {
+        Toast.makeText(this, "Status received", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -76,6 +94,11 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         ((HomeApplication)getApplication()).getRequestQueue().add(request);
     }
 
+    @Override
+    protected void onDestroy() {
+        ((HomeApplication)getApplication()).getEventBus().unregister(this);
+        super.onDestroy();
+    }
 
     public static PendingIntent intentForNotification(Context context) {
         Intent homeActivity = new Intent(context, HomeActivity.class);
