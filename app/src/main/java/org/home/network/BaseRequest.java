@@ -48,7 +48,12 @@ public abstract class BaseRequest<T> extends JsonRequest<T> {
 
     @Override
     protected VolleyError parseNetworkError(VolleyError volleyError) {
-        Log.e(HomeApplication.TAG, volleyError.getMessage());
+        if (volleyError.networkResponse != null) {
+            String message = String.format("[%s] %s", volleyError.networkResponse.statusCode, getUrl());
+            Log.e(HomeApplication.TAG, message);
+        }
+
+        Log.e(HomeApplication.TAG, volleyError.toString());
         return super.parseNetworkError(volleyError);
     }
 
