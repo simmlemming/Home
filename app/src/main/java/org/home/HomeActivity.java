@@ -7,26 +7,31 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.EditText;
+import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 
 import org.home.gcm.GcmRegistrationService;
+import org.home.model.Status;
 import org.home.network.CurrentStatusRequest;
-import org.home.network.SendGcmTokenRequest;
+import org.jetbrains.annotations.Nullable;
 
 
 public class HomeActivity extends AppCompatActivity implements View.OnClickListener {
     private final static String EXTRA_STARTED_FROM_NOTIFICATION = "started_from_notification";
 
-    private View sendTokenView;
-    private EditText deviceNameView, deviceTokenView;
-
+    private RecyclerView sensorsView;
     private ImageView iconView;
+
+    private Status status;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,11 +39,12 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_home);
 
         iconView = (ImageView) findViewById(R.id.icon);
-        sendTokenView = findViewById(R.id.send_token);
-        deviceNameView = (EditText) findViewById(R.id.device_name);
-        deviceTokenView = (EditText) findViewById(R.id.device_token);
+        sensorsView = (RecyclerView) findViewById(R.id.sensors);
 
-        sendTokenView.setOnClickListener(this);
+        sensorsView.setLayoutManager(new LinearLayoutManager(this));
+        sensorsView.setAdapter(new SensorsAdapter(status));
+
+        updateUi();
 
         boolean startedFromNotification = getIntent().getBooleanExtra(EXTRA_STARTED_FROM_NOTIFICATION, false);
         if (!startedFromNotification) {
@@ -48,8 +54,18 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         ((HomeApplication)getApplication()).getEventBus().register(this);
 
         CurrentStatusRequest request = new CurrentStatusRequest();
-        ((HomeApplication)getApplication()).getRequestQueue().cancelAll(CurrentStatusRequest.TAG);
-        ((HomeApplication)getApplication()).getRequestQueue().add(request);
+        getHomeApplication().getRequestQueue().cancelAll(CurrentStatusRequest.TAG);
+        getHomeApplication().getRequestQueue().add(request);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        getHomeApplication().setSensorsOnScreen(true);
+    }
+
+    private void updateUi() {
+        ((SensorsAdapter)sensorsView.getAdapter()).setStatus(status);
     }
 
     private void refreshGcmToken() {
@@ -73,31 +89,75 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @SuppressWarnings("unused")
-    public void onEvent(CurrentStatusRequest.StatusReceivedEvent event) {
-        Toast.makeText(this, "Status received", Toast.LENGTH_SHORT).show();
+    public void onEventMainThread(CurrentStatusRequest.StatusReceivedEvent event) {
+        status = event.status;
+        updateUi();
     }
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.send_token:
-                sendToken();
-                break;
-        }
     }
 
-    private void sendToken() {
-        String deviceName = deviceNameView.getText().toString();
-        String deviceToken = deviceTokenView.getText().toString();
-
-        SendGcmTokenRequest request = new SendGcmTokenRequest(deviceName, deviceToken);
-        ((HomeApplication)getApplication()).getRequestQueue().add(request);
+    @Override
+    protected void onStop() {
+        getHomeApplication().setSensorsOnScreen(false);
+        super.onStop();
     }
 
     @Override
     protected void onDestroy() {
         ((HomeApplication)getApplication()).getEventBus().unregister(this);
         super.onDestroy();
+    }
+
+    private HomeApplication getHomeApplication() {
+        return (HomeApplication) getApplication();
+    }
+
+    public static class SensorsAdapter extends RecyclerView.Adapter<SensorsAdapter.SensorViews> {
+        @Nullable private Status status;
+
+        public SensorsAdapter(@Nullable Status status) {
+            this.status = status;
+        }
+
+        @Override
+        public SensorViews onCreateViewHolder(ViewGroup parent, int viewType) {
+            View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.sensor_item, parent, false);
+            return new SensorViews(itemView);
+        }
+
+        @Override
+        public void onBindViewHolder(SensorViews holder, int position) {
+            assert status != null;
+            holder.fill(status.sensors.get(position));
+        }
+
+        @Override
+        public int getItemCount() {
+            return status == null ? 0 : status.sensors.size();
+        }
+
+        public void setStatus(@Nullable Status status) {
+            this.status = status;
+            notifyDataSetChanged();
+        }
+
+        public static class SensorViews extends RecyclerView.ViewHolder {
+            private final TextView titleView;
+            private final View statusView;
+
+            public SensorViews(View itemView) {
+                super(itemView);
+                titleView = (TextView) itemView.findViewById(R.id.title);
+                statusView = itemView.findViewById(R.id.icon_status);
+            }
+
+            private void fill(Status.Sensor sensor) {
+                titleView.setText(sensor.name);
+                statusView.setBackgroundResource(sensor.state == 1 ? R.drawable.ic_state_error : R.drawable.ic_state_ok);
+            }
+        }
     }
 
     public static PendingIntent intentForNotification(Context context) {

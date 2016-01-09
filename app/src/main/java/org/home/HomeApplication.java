@@ -22,6 +22,7 @@ public class HomeApplication extends Application {
     private Handler handler;
     private RequestQueue requestQueue;
     private EventBus eventBus;
+    private boolean areSensorsOnScreen = false;
 
     @Override
     public void onCreate() {
@@ -59,6 +60,14 @@ public class HomeApplication extends Application {
 
     public HomeNotificationManager getNotificationManager() {
         return new HomeNotificationManager(this);
+    }
+
+    public boolean areSensorsOnScreen() {
+        return areSensorsOnScreen;
+    }
+
+    public void setSensorsOnScreen(boolean isApplicationOpen) {
+        this.areSensorsOnScreen = isApplicationOpen;
     }
 
     public class Settings {

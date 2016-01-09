@@ -17,8 +17,8 @@ def update(sensor_state):
             'state': 'on',
             'sensors': [
                 sensor_info('Front door', sensor_state),
-                sensor_info('Back door', 1),
-                sensor_info('Kitchen door', 1),
+                sensor_info('Back door', 0),
+                sensor_info('Kitchen door', 0),
                 ]
             }
 
