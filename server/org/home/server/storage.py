@@ -14,7 +14,7 @@ class InvalidUpdate:
 def get_db():
     db = sqlite3.connect(DATABASE_FILE_NAME)
 
-    db.execute('create table if not exists log (t real, u text)')
+    db.execute('create table if not exists log (t int, u text)')
     db.execute('create table if not exists devices (name text primary key, token text)')
 
     return db

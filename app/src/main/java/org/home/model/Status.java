@@ -6,7 +6,7 @@ import java.util.List;
  * Created by mtkachenko on 20/12/15.
  */
 public class Status {
-    public float time;
+    public int time;
     public String state;
     public List<Sensor> sensors;
 

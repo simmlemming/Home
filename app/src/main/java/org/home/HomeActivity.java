@@ -24,12 +24,19 @@ import org.home.model.Status;
 import org.home.network.CurrentStatusRequest;
 import org.jetbrains.annotations.Nullable;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 
 public class HomeActivity extends AppCompatActivity implements View.OnClickListener {
     private final static String EXTRA_STARTED_FROM_NOTIFICATION = "started_from_notification";
+    private final DateFormat DATE_FORMAT = new SimpleDateFormat("EEE, MMM d, HH:mm", Locale.getDefault());
 
     private RecyclerView sensorsView;
     private ImageView iconView;
+    private TextView timeView;
 
     private Status status;
 
@@ -40,6 +47,7 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
 
         iconView = (ImageView) findViewById(R.id.icon);
         sensorsView = (RecyclerView) findViewById(R.id.sensors);
+        timeView = (TextView) findViewById(R.id.time);
 
         sensorsView.setLayoutManager(new LinearLayoutManager(this));
         sensorsView.setAdapter(new SensorsAdapter(status));
@@ -65,6 +73,12 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void updateUi() {
+        if (status == null) {
+            timeView.setText(null);
+        } else {
+            timeView.setText(DATE_FORMAT.format(new Date(status.time * 1000l)));
+        }
+
         ((SensorsAdapter)sensorsView.getAdapter()).setStatus(status);
     }
 
