@@ -16,8 +16,46 @@ def get_db():
 
     db.execute('create table if not exists log (t int, u text)')
     db.execute('create table if not exists devices (name text primary key, token text)')
+    db.execute('create table if not exists settings (key text primary key, value text)')
 
     return db
+
+
+def put(key, value):
+    db = get_db()
+
+    cursor = db.execute('insert or replace into settings values (?,?)', (key, value))
+    added = cursor.rowcount == 1
+
+    db.commit()
+    db.close()
+
+    if not added:
+        raise OperationalError
+
+
+def get_int(key, default_value):
+    default_string_value = '--dv--'
+
+    value = get_string(key, default_string_value)
+    if value == default_string_value:
+        return default_value
+
+    return int(value)
+
+
+def get_string(key, default_value):
+    db = get_db()
+    cursor = db.execute('select * from settings where key = ?', key)
+    fetched_tuple = cursor.fetchone()
+
+    if not fetched_tuple:
+        return default_value
+
+    value = fetched_tuple[1]  # How to refer by column name?
+    cursor.close()
+
+    return value
 
 
 def get_all_devices():

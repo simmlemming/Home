@@ -9,6 +9,22 @@ class StorageTest(unittest.TestCase):
         utils.rm('tmp.db')
         storage.DATABASE_FILE_NAME = 'tmp.db'
 
+    def test_put_get_string(self):
+        a = storage.get_string('a', 'default_value')
+        self.assertEqual('default_value', a)
+
+        storage.put('a', 1)
+        a = storage.get_string('a', 2)
+        self.assertEqual('1', a)
+
+    def test_put_get_int(self):
+        a = storage.get_int('a', 34)
+        self.assertEqual(34, a)
+
+        storage.put('a', 1)
+        a = storage.get_int('a', 2)
+        self.assertEqual(1, a)
+
     def test_token_update(self):
         device_1 = dict(device_name='d1', device_token='t1')
         device_2 = dict(device_name='d2', device_token='t2')
