@@ -19,6 +19,9 @@ import de.greenrobot.event.EventBus;
 public class HomeApplication extends Application {
     public static final String TAG = "Home";
 
+    public static final String MODE_GUARD = "guard";
+    public static final String MODE_OFF = "off";
+
     private Handler handler;
     private RequestQueue requestQueue;
     private EventBus eventBus;

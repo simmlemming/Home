@@ -12,7 +12,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,6 +23,7 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 
 import org.home.gcm.GcmRegistrationService;
 import org.home.model.Status;
+import org.home.network.ChangeModeRequest;
 import org.home.network.CurrentStatusRequest;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,6 +31,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+
+import static org.home.HomeApplication.MODE_GUARD;
+import static org.home.HomeApplication.MODE_OFF;
 
 
 public class HomeActivity extends AppCompatActivity implements View.OnClickListener {
@@ -37,6 +43,7 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
     private RecyclerView sensorsView;
     private ImageView iconView;
     private TextView timeView;
+    private Switch modeView;
 
     private Status status;
 
@@ -48,11 +55,31 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         iconView = (ImageView) findViewById(R.id.icon);
         sensorsView = (RecyclerView) findViewById(R.id.sensors);
         timeView = (TextView) findViewById(R.id.time);
+        modeView = (Switch) findViewById(R.id.mode);
 
         sensorsView.setLayoutManager(new LinearLayoutManager(this));
         sensorsView.setAdapter(new SensorsAdapter(status));
 
+        // Before listeners are set
         updateUi();
+
+        iconView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                requestCurrentStatus();
+            }
+        });
+
+
+        modeView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                String mode = isChecked ? MODE_GUARD : MODE_OFF;
+                ChangeModeRequest request = new ChangeModeRequest(mode);
+                getHomeApplication().getRequestQueue().cancelAll(ChangeModeRequest.TAG);
+                getHomeApplication().getRequestQueue().add(request);
+            }
+        });
 
         boolean startedFromNotification = getIntent().getBooleanExtra(EXTRA_STARTED_FROM_NOTIFICATION, false);
         if (!startedFromNotification) {
@@ -60,10 +87,7 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         ((HomeApplication)getApplication()).getEventBus().register(this);
-
-        CurrentStatusRequest request = new CurrentStatusRequest();
-        getHomeApplication().getRequestQueue().cancelAll(CurrentStatusRequest.TAG);
-        getHomeApplication().getRequestQueue().add(request);
+        requestCurrentStatus();
     }
 
     @Override
@@ -75,7 +99,10 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
     private void updateUi() {
         if (status == null) {
             timeView.setText(null);
+            modeView.setEnabled(false);
         } else {
+            modeView.setEnabled(true);
+            modeView.setChecked(!status.mode.equals(MODE_OFF));
             timeView.setText(DATE_FORMAT.format(new Date(status.time * 1000l)));
         }
 
@@ -100,6 +127,7 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
     @SuppressWarnings("unused")
     public void onEvent(CurrentStatusRequest.StatusRequestFailedEvent event) {
         Toast.makeText(this, event.userFriendlyErrorMessage, Toast.LENGTH_SHORT).show();
+        updateUi();
     }
 
     @SuppressWarnings("unused")
@@ -110,6 +138,12 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View view) {
+    }
+
+    private void requestCurrentStatus() {
+        CurrentStatusRequest request = new CurrentStatusRequest();
+        getHomeApplication().getRequestQueue().cancelAll(CurrentStatusRequest.TAG);
+        getHomeApplication().getRequestQueue().add(request);
     }
 
     @Override

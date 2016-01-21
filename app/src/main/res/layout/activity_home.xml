@@ -9,6 +9,13 @@
     android:paddingTop="@dimen/margin_normal"
     tools:context="org.home.HomeActivity">
 
+    <View
+        android:layout_width="256dp"
+        android:layout_height="256dp"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        android:background="@drawable/background_state_error" />
+
     <ImageView
         android:id="@+id/icon"
         android:layout_width="64dp"
@@ -27,6 +34,11 @@
         android:layout_alignParentRight="true"
         android:layout_marginBottom="@dimen/margin_normal"
         tools:text="Sun, Jan 10, 22:39" />
+
+    <Switch
+        android:id="@+id/mode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/sensors"

@@ -14,7 +14,11 @@ public class CurrentStatusRequest extends BaseRequest<Status> {
     public static final String TAG = "current_status";
 
     public CurrentStatusRequest() {
-        super(Method.GET, url("/status"), new OKListener(), new ErrorListener());
+        this(Method.GET, url("/status"));
+    }
+
+    protected CurrentStatusRequest(int method, String url) {
+        super(method, url, new OKListener(), new ErrorListener());
         setTag(TAG);
     }
 

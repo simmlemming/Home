@@ -48,7 +48,7 @@ def get_system_state():
     mode = settings.get_mode()
 
     if mode == MODE_OFF:
-        return dict(mode=MODE_OFF, time=current_time_s())
+        return dict(mode=MODE_OFF, time=current_time_s(), sensors=[])
 
     last_update = storage.get_last_update()
     if not last_update:

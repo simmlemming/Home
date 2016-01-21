@@ -7,7 +7,10 @@ import java.util.List;
  */
 public class Status {
     public int time;
+    /* ok, alarm */
     public String state;
+    /* off, serve, guard */
+    public String mode;
     public List<Sensor> sensors;
 
     public static class Sensor {

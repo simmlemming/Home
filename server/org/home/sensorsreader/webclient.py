@@ -14,7 +14,7 @@ def sensor_info(name, state):
 
 def update(sensor_state):
     return {'time': int(time.time()),
-            'state': 'on',
+            'state': 'guard',
             'sensors': [
                 sensor_info('Front door', sensor_state),
                 sensor_info('Back door', 0),
