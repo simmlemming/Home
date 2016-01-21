@@ -7,7 +7,7 @@ from org.home.server.updates_comparator import Comparator
 class ComparatorTest(unittest.TestCase):
 
     def setUp(self):
-        self.update_under_test = dict(time=131, state='on', sensors=[dict(name='a', state=1)])
+        self.update_under_test = dict(time=1453303467, sensors=[dict(name='a', state=1)])
 
     def test_equals(self):
         old = self.update_under_test
@@ -17,14 +17,14 @@ class ComparatorTest(unittest.TestCase):
 
         self.assertEqual(Comparator.RESULT_EQUALS, result)
 
-    def test_state_changed(self):
-        old = self.update_under_test
-        new = copy.deepcopy(old)
-        new['state'] = 'off'
-
-        result, data = Comparator().compare(old, new)
-
-        self.assertEqual(Comparator.RESULT_STATE_CHANGED, result)
+    # def test_state_changed(self):
+    #     old = self.update_under_test
+    #     new = copy.deepcopy(old)
+    #     new['state'] = 'off'
+    #
+    #     result, data = Comparator().compare(old, new)
+    #
+    #     self.assertEqual(Comparator.RESULT_STATE_CHANGED, result)
 
     def test_no_old_int_error(self):
         result, data = Comparator().compare(None, {})
@@ -34,10 +34,10 @@ class ComparatorTest(unittest.TestCase):
         result, data = Comparator().compare({}, None)
         self.assertEqual(Comparator.RESULT_INTERNAL_ERROR, result)
 
-    def test_no_state_int_error(self):
-        self.update_under_test.pop('state', None)
-        result, data = Comparator().compare(self.update_under_test, self.update_under_test)
-        self.assertEqual(Comparator.RESULT_INTERNAL_ERROR, result)
+    # def test_no_state_int_error(self):
+    #     self.update_under_test.pop('state', None)
+    #     result, data = Comparator().compare(self.update_under_test, self.update_under_test)
+    #     self.assertEqual(Comparator.RESULT_INTERNAL_ERROR, result)
 
     def test_new_sensor(self):
         new = copy.deepcopy(self.update_under_test)

@@ -1,8 +1,21 @@
 import unittest
-from org.home.server.utils import validate_update
+from org.home.server.utils import validate_update, validate_mode
 
 
 class UtilsTest(unittest.TestCase):
+
+    def test_validate_mode_no_mode(self):
+        mode = dict()
+        self.assertFalse(validate_mode(mode))
+
+    def test_validate_mode_unknown_mode(self):
+        mode = dict(mode='unknown_mode')
+        self.assertFalse(validate_mode(mode))
+
+    def test_validate_mode_valid_mode(self):
+        self.assertTrue(validate_mode(dict(mode='guard')))
+        self.assertTrue(validate_mode(dict(mode='serve')))
+        self.assertTrue(validate_mode(dict(mode='off')))
 
     def test_validate_update_no_time(self):
         update = dict()

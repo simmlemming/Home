@@ -57,7 +57,7 @@ class Comparator:
     RESULT_NEW_SENSOR = 3
     RESULT_MISSING_SENSOR = 4
     RESULT_SENSORS_UPDATED = 5
-    RESULT_STATE_CHANGED = 6  # State of the system changed 'on' <-> 'off'
+    # RESULT_STATE_CHANGED = 6  # State of the system changed 'on' <-> 'off'
 
     # noinspection PyMethodMayBeStatic
     # returns code and list of sensors that changed
@@ -68,8 +68,8 @@ class Comparator:
         if not validate_update(old) or not validate_update(new):
             return Comparator.RESULT_INTERNAL_ERROR, None
 
-        if old['state'] != new['state']:
-            return Comparator.RESULT_STATE_CHANGED, None
+        # if old['state'] != new['state']:
+        #     return Comparator.RESULT_STATE_CHANGED, None
 
         new_sensors = check_for_new_sensors(old['sensors'], new['sensors'])
         if new_sensors:

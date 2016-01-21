@@ -7,6 +7,15 @@ from cgi import parse_header
 from http.server import BaseHTTPRequestHandler
 from sqlite3 import OperationalError
 import org.home.server.utils as utils
+import org.home.server.settings as settings
+
+
+def on_new_mode(mode):
+    if not utils.validate_mode(mode):
+        return 422, "Invalid mode"
+
+    settings.put_mode(mode['mode'])
+    return on_get_status()
 
 
 def on_new_device(token):
@@ -23,7 +32,7 @@ def on_new_device(token):
 
 
 def on_new_update(update):
-    if not utils.validate_update(update):
+    if 'sensors' not in update:
         return 422, "Invalid update"
 
     try:
@@ -35,12 +44,8 @@ def on_new_update(update):
 
 
 def on_get_status():
-    last_update = storage.get_last_update()
-
-    if not last_update:
-        return 200, '{}'
-
-    return 200, json.dumps(last_update)
+    system_state = processor.get_system_state()
+    return 200, json.dumps(system_state)
 
 
 class HomeRequestHandler(BaseHTTPRequestHandler):
@@ -55,7 +60,10 @@ class HomeRequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         data = self.parse_post()
 
-        if self.path == '/device':
+        if self.path == '/mode':
+            code, message = on_new_mode(data)
+
+        elif self.path == '/device':
             code, message = on_new_device(data)
 
         elif self.path == '/update':

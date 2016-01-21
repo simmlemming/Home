@@ -46,7 +46,7 @@ def get_int(key, default_value):
 
 def get_string(key, default_value):
     db = get_db()
-    cursor = db.execute('select * from settings where key = ?', key)
+    cursor = db.execute('select * from settings where key=?', (key,))
     fetched_tuple = cursor.fetchone()
 
     if not fetched_tuple:
