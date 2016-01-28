@@ -1,16 +1,9 @@
-from org.home.server.utils import validate_update
-
-
-def to_dict(sensors):
-    d = {}
-    for sensor in sensors:
-        d[sensor['name']] = sensor
-    return d
+from org.home.server.utils import validate_update, sensors_to_dict
 
 
 def check_for_new_sensors(old, new):
-    old_sensors = to_dict(old)
-    new_sensors = to_dict(new)
+    old_sensors = sensors_to_dict(old)
+    new_sensors = sensors_to_dict(new)
     added_sensors = []
 
     for sensor_name in new_sensors:
@@ -24,8 +17,8 @@ def check_for_new_sensors(old, new):
 
 
 def check_for_missing_sensors(old, new):
-    old_sensors = to_dict(old)
-    new_sensors = to_dict(new)
+    old_sensors = sensors_to_dict(old)
+    new_sensors = sensors_to_dict(new)
     removed_sensors = []
 
     for sensor_name in old_sensors:
@@ -39,8 +32,8 @@ def check_for_missing_sensors(old, new):
 
 
 def check_for_updated_sensors(old, new):
-    old_sensors = to_dict(old)
-    new_sensors = to_dict(new)
+    old_sensors = sensors_to_dict(old)
+    new_sensors = sensors_to_dict(new)
     updated_sensors = []
 
     for sensor_name, sensor in new_sensors.items():

@@ -1,8 +1,25 @@
 import unittest
-from org.home.server.utils import validate_update, validate_mode
+from org.home.server.utils import validate_update, validate_mode, merge_sensors
 
 
 class UtilsTest(unittest.TestCase):
+
+    def test_merge_sensors(self):
+        s1 = [{'name': 's_1', 'state': 0},
+              {'name': 's_2', 'state': 1},
+              {'name': 's_3', 'state': 0}]
+
+        s2 = [{'name': 's_4', 'state': 0},
+              {'name': 's_2', 'state': 1},
+              {'name': 's_3', 'state': 1}]
+
+        expected = [{'name': 's_1', 'state': 0},
+                    {'name': 's_2', 'state': 1},
+                    {'name': 's_3', 'state': 1},
+                    {'name': 's_4', 'state': 0}]
+
+        actual = merge_sensors(s1, s2)
+        self.assertCountEqual(expected, actual)
 
     def test_validate_mode_no_mode(self):
         mode = dict()

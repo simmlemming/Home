@@ -2,6 +2,22 @@ import os
 import time
 
 
+def merge_sensors(sensors_1, sensors_2):
+    merged = sensors_to_dict(sensors_1)
+    s_2 = sensors_to_dict(sensors_2)
+
+    for name in s_2:
+        sensor = s_2[name]
+
+        if name in merged:
+            old_state = merged[name]['state']
+            merged[name]['state'] = old_state | sensor['state']
+        else:
+            merged[sensor['name']] = sensor
+
+    return list(merged.values())
+
+
 def current_time_s():
     return int(time.time())
 
@@ -36,3 +52,10 @@ def rm(file):
         os.remove(file)
     except FileNotFoundError:
         pass
+
+
+def sensors_to_dict(sensors):
+    d = {}
+    for sensor in sensors:
+        d[sensor['name']] = sensor
+    return d

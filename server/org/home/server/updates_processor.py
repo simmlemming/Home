@@ -5,6 +5,7 @@ from sqlite3 import OperationalError
 from org.home.server.updates_comparator import Comparator
 from org.home.server.utils import current_time_s
 import org.home.server.settings as settings
+import org.home.server.utils as utils
 
 MODE_OFF = 'off'
 MODE_GUARD = 'guard'
@@ -17,6 +18,10 @@ STATE_ALARM = 'alarm'
 def on_new_update(new_update):
     new_update['time'] = current_time_s()
     last_update = storage.get_last_update()
+
+    if settings.get_mode() == MODE_GUARD and last_update:
+        new_update['sensors'] = utils.merge_sensors(new_update['sensors'], last_update['sensors'])
+
     storage.save_last_update(new_update)
 
     if not last_update:
